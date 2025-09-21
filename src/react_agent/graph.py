@@ -111,11 +111,15 @@ def route_model_output(state: State) -> Literal["__end__", "tools"]:
     Returns:
         str: The name of the next node to call ("__end__" or "tools").
     """
+    if not state.messages:
+        return "__end__"
+    
     last_message = state.messages[-1]
+    
+    # If the last message is not an AIMessage, we should end the conversation
     if not isinstance(last_message, AIMessage):
-        raise ValueError(
-            f"Expected AIMessage in output edges, but got {type(last_message).__name__}"
-        )
+        return "__end__"
+    
     # If there is no tool call, then we finish
     if not last_message.tool_calls:
         return "__end__"
